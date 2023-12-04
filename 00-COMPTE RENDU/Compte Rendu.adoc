@@ -1,0 +1,164 @@
+= Compte Rendu E5
+:toc:
+== Sommaire
+
+
+KIUSI Luca
+
+
+== B : Afficher les détails d'une bombe dans une nouvelle page
+
+J'ai d'abord fait un template show dans le fichier de bombe pour avoir la page /admin/bombe/show .
+
+Ensuite dans le html, j'ai fait une liste qui permet d'afficher chaques caractéristiques de la bombe :
+
+
+1. Nom
+2. Description
+3. CheminImage
+4. Nombre Des
+5. Max Des
+
+Template
+Source : bombe/index.html
+
+----
+{...}
+
+    <main class="container">
+                <h1 th:text="'Arme : '+ ${Bombe.nom}"></h1>
+                <ul>
+                    <li th:text="'Nom : '+ ${Bombe.nom}"></li>
+                    <li th:text="'Description : '+ ${Bombe.description}"></li>
+                    <li th:text="'Chemin Image : '+ ${Bombe.cheminImage}"></li>
+                    <li th:text="'Type d\'Arme : '+${Bombe.nbrDes}"></li>
+                    <li th:text="'Qualite d\'Arme : '+${Bombe.maxDes}"></li>
+                </ul>
+                <a href="/admin/bombe"><button type="button" class="btn btn-dark">Retour</button></a>
+
+            </main>
+
+
+{...}
+----
+
+
+Puis j'ai fait un GetMapping dans BombeControleur pour pouvoir accéder à la page /admin/bombe/{id} en fonction de l'id de la bombe :
+
+Source : BombeControleur.kt
+----
+{...}
+
+@GetMapping("/admin/bombe/{id}")
+    fun show(@PathVariable id: Long, model: Model): String {
+        // Récupère la qualité avec l'ID spécifié depuis la base de données
+        val uneBombe = this.bombeDao.findById(id).orElseThrow()
+
+        // Ajoute la qualité au modèle pour affichage dans la vue
+        model.addAttribute("Bombe", uneBombe)
+
+        // Retourne le nom de la vue à afficher
+        return "admin/bombe/show"
+    }
+
+{...}
+----
+
+
+
+
+== A : Faire apparaitre le nombre totale de type d'armes
+
+J'ai ajouté un attribut dans le controleur de TypeArmeControleur qui va récupérer la taille de la liste typeArmes grâce à la fonction .size :
+
+
+Source : TypeArmeControleur.kt
+----
+{...}
+
+    @GetMapping("/admin/typeArme")
+    fun index(model: Model): String {
+        // Récupère tous les types d'armes depuis la base de données
+        val typeArmes = this.typeArmeDao.findAll()
+        // Ajoute la liste des types d'armes au modèle pour transmission à la vue
+        model.addAttribute("typeArmes", typeArmes)
+        model.addAttribute("nombreTypeArme", typeArmes.size)
+        return "admin/typearme/index"
+    }
+
+{...}
+----
+
+Puis dans la vue de type d'arme j'ai fait un paragraphe qui affiche le nombre avec la variable nombreTypeArme :
+
+Source : typearme/index.html
+----
+{...}
+
+    <h1>Gestion des types d'armes</h1>
+        <p>Nombre total de types d'armes : <span th:text="${nombreTypeArme}"></span></p>
+        <div >
+            <a th:href="@{'/admin/typeArme/create'}" class="btn btn-success">
+                Ajouter un type d'arme
+            </a>
+        </div>
+
+{...}
+----
+
+
+
+== C : Le joueur choisit une arme dans la liste des armes lors de sa création
+
+Premierement dans le controleur j'ai ajouté une variable qui récupère toutes les armes dans le dao avec findAll() puis mis un attribut pour pouvoir y accéder dans la vue :
+
+
+Source : PersonnageControleur.kt
+----
+{...}
+
+    @GetMapping("/joueur/personnage/create")
+    fun create(model: Model): String {
+        val nouvellePersonnage = Personnage(null, "", 1, 1, 1, 1)
+        model.addAttribute("nouvellePersonnage", nouvellePersonnage)
+
+        val armes = armeDao.findAll()
+        model.addAttribute("armes", armes)
+
+        return "joueur/personnage/create"
+    }
+
+
+{...}
+----
+
+Ensuite dans la vue j'ai fait un menu déroulant qui affiche toutes les armes :
+
+Source : personnage/create.html
+----
+{...}
+
+    <div class="mb-3">
+                <label for="idArme" class="form-label">Choisir une arme</label>
+                <select class="form-select" id="idArme" name="idArme" required>
+                    <option disabled selected value="">Choisir une arme</option>
+                    <option th:each="uneArme : ${armes}" th:value="${uneArme.id}" th:text="${uneArme.nom}"></option>
+                </select>
+            </div>
+
+{...}
+----
+
+Puis dans le store qui est dans le controleur de Personnage j'ai ajouter une variable qui charger l'arme qui a été selectionneée lors de la création du personnage avec son id en la cherchant puis la récupérer avec orElse(null) si elle est trouvée :
+
+
+
+Source : PersonnageControleur.kt
+----
+{...}
+
+    // Charger l'arme sélectionnée
+        val armeSelectionnee = armeDao.findById(idArme).orElse(null)
+
+{...}
+----

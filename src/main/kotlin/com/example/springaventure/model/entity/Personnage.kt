@@ -33,6 +33,8 @@ open class Personnage(
     @ManyToOne
     @JoinColumn(name = "arme_equipee_id")
     var armeEquipee: Arme? = null,
+
+
     @ManyToOne
     @JoinColumn(name = "armure_equipee_id")
     var armureEquipee: Armure? = null,
@@ -49,6 +51,8 @@ open class Personnage(
     @ManyToOne
     @JoinColumn(name = "accessoire_id")
     open var accessoire: Accessoire? = null
+
+
 ) {
 
     /**

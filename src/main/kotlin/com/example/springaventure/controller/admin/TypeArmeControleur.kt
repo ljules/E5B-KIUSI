@@ -28,6 +28,7 @@ class TypeArmeControleur(
         val typeArmes = this.typeArmeDao.findAll()
         // Ajoute la liste des types d'armes au modèle pour transmission à la vue
         model.addAttribute("typeArmes", typeArmes)
+        model.addAttribute("nombreTypeArme", typeArmes.size)
         return "admin/typearme/index"
     }
 
@@ -131,4 +132,6 @@ class TypeArmeControleur(
         redirectAttributes.addFlashAttribute("msgSuccess", "Suppression de ${typeArme.nom} réussie")
         return "redirect:/admin/typeArme"
     }
+
+
 }

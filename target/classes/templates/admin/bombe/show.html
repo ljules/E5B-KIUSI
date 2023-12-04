@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head th:replace="mesFragments :: fragHead">
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div class="min-vh-100">
+    <nav th:replace="mesFragments :: fragNav"></nav>
+    <div th:replace="mesFragments:: fragFlashSuccess"></div>
+    <main class="container">
+
+
+
+            <main class="container">
+                <h1 th:text="'Arme : '+ ${Bombe.nom}"></h1>
+                <ul>
+                    <li th:text="'Nom : '+ ${Bombe.nom}"></li>
+                    <li th:text="'Description : '+ ${Bombe.description}"></li>
+                    <li th:text="'Chemin Image : '+ ${Bombe.cheminImage}"></li>
+                    <li th:text="'Type d\'Arme : '+${Bombe.nbrDes}"></li>
+                    <li th:text="'Qualite d\'Arme : '+${Bombe.maxDes}"></li>
+                </ul>
+                <a href="/admin/bombe"><button type="button" class="btn btn-dark">Retour</button></a>
+
+            </main>
+
+    </main>
+</div>
+<footer th:replace="mesFragments :: fragFooter"></footer>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

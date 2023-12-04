@@ -1,7 +1,9 @@
 package com.example.springaventure.controller.joueur
 
+import com.example.springaventure.model.dao.ArmeDao
 import com.example.springaventure.model.dao.PersonnageDao
 import com.example.springaventure.model.dao.UtilisateurDao
+import com.example.springaventure.model.entity.Arme
 import com.example.springaventure.model.entity.Personnage
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
@@ -18,7 +20,8 @@ class PersonnageControleur(
     /** DAO pour l'accès aux données des personnages. */
     val personnageDao: PersonnageDao,
     /** DAO pour l'accès aux données des utilisateurs. */
-    val utilisateurDao: UtilisateurDao
+    val utilisateurDao: UtilisateurDao,
+    val armeDao: ArmeDao
 ) {
 
     /**
@@ -66,6 +69,10 @@ class PersonnageControleur(
     fun create(model: Model): String {
         val nouvellePersonnage = Personnage(null, "", 1, 1, 1, 1)
         model.addAttribute("nouvellePersonnage", nouvellePersonnage)
+
+        val armes = armeDao.findAll()
+        model.addAttribute("armes", armes)
+
         return "joueur/personnage/create"
     }
 
@@ -76,9 +83,28 @@ class PersonnageControleur(
      * @param redirectAttributes Attributs de redirection pour transmettre des messages à la vue.
      * @return Redirection vers la liste des personnages.
      */
+//    @PostMapping("/joueur/personnage")
+//    fun store(
+//        @ModelAttribute nouvellePersonnage: Personnage,
+//        redirectAttributes: RedirectAttributes
+//    ): String {
+//        // Récupérer l'objet Principal
+//        val authentication: Authentication = SecurityContextHolder.getContext().authentication
+//        // Récupérer le nom d'utilisateur à partir de l'objet Principal
+//        val email: String = authentication.getName()
+//        // Récupérer l'utilisateur
+//        val utilisateur = utilisateurDao.findByEmail(email)!!
+//        nouvellePersonnage.utilisateur = utilisateur
+//        val savedPersonnage = this.personnageDao.save(nouvellePersonnage)
+//        redirectAttributes.addFlashAttribute("msgSuccess", "Enregistrement de ${savedPersonnage.nom} réussi")
+//
+//        return "redirect:/joueur/personnage"
+//    }
+
     @PostMapping("/joueur/personnage")
     fun store(
         @ModelAttribute nouvellePersonnage: Personnage,
+        @RequestParam idArme: Long,
         redirectAttributes: RedirectAttributes
     ): String {
         // Récupérer l'objet Principal
@@ -87,11 +113,24 @@ class PersonnageControleur(
         val email: String = authentication.getName()
         // Récupérer l'utilisateur
         val utilisateur = utilisateurDao.findByEmail(email)!!
+
+        // Charger l'arme sélectionnée
+        val armeSelectionnee = armeDao.findById(idArme).orElse(null)
+
+        // Assigner l'arme au personnage
+        nouvellePersonnage.armeEquipee = armeSelectionnee
         nouvellePersonnage.utilisateur = utilisateur
+
+        // Enregistrer le personnage
         val savedPersonnage = this.personnageDao.save(nouvellePersonnage)
         redirectAttributes.addFlashAttribute("msgSuccess", "Enregistrement de ${savedPersonnage.nom} réussi")
+
         return "redirect:/joueur/personnage"
     }
+
+
+
+
 
     /**
      * Affiche le formulaire de modification d'un personnage existant.
@@ -152,4 +191,5 @@ class PersonnageControleur(
         redirectAttributes.addFlashAttribute("msgSuccess", "Suppression de ${personnage.nom} réussie")
         return "redirect:/joueur/personnage"
     }
+
 }
